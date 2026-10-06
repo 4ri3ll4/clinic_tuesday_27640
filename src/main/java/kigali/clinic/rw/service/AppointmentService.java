@@ -3,10 +3,13 @@ package kigali.clinic.rw.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.sql.Date;
+import java.time.LocalDate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import kigali.clinic.rw.domain.Appointment;
+import kigali.clinic.rw.domain.AppointmentStatus;
 import kigali.clinic.rw.repository.AppointmentRepository;
 import kigali.clinic.rw.repository.DoctorRepository;
 import kigali.clinic.rw.repository.PatientRepository;
@@ -36,16 +39,29 @@ public class AppointmentService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found")));
     }
 
-    public Appointment create(Appointment appointment) {
+    public Optional<Appointment> create(Appointment appointment) {
         if (appointment.getId() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Omit id when creating an appointment");
         }
         resolveRelationships(appointment);
-        return appointmentRepo.save(appointment);
+        if (appointmentRepo.existsByDoctorIdAndAppointmentDateAndStatusNot(
+                appointment.getDoctor().getId(), appointment.getAppointmentDate(), AppointmentStatus.CANCELLED)) {
+            return Optional.empty();
+        }
+        return Optional.of(appointmentRepo.save(appointment));
     }
 
     public List<Appointment> getAll() { return appointmentRepo.findAll(); }
     public Optional<Appointment> getById(UUID id) { return appointmentRepo.findById(id); }
+
+    public List<Appointment> getByStatus(AppointmentStatus status) {
+        return appointmentRepo.findByStatusOrderByAppointmentDateAsc(status);
+    }
+
+    public List<Appointment> getBetweenDates(LocalDate start, LocalDate end) {
+        return appointmentRepo.findByAppointmentDateBetweenOrderByAppointmentDateAsc(
+            Date.valueOf(start), Date.valueOf(end));
+    }
 
     public Optional<Appointment> update(UUID id, Appointment appointment) {
         Optional<Appointment> existing = appointmentRepo.findById(id);

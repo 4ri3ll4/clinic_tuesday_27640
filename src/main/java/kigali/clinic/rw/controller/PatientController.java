@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kigali.clinic.rw.domain.Patient;
 import kigali.clinic.rw.service.PatientService;
 
 @RestController
-@RequestMapping(value = "/api/patient")
+@RequestMapping(value = {"/api/patient", "/api/patients"})
 public class PatientController {
 
     @Autowired
@@ -34,6 +35,11 @@ public class PatientController {
     @GetMapping(value = "/all")
     public ResponseEntity<List<Patient>> getAllPatients() {
         return new ResponseEntity<>(patientService.getAllPatients(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/by-last-name")
+    public ResponseEntity<List<Patient>> getPatientsByLastName(@RequestParam String lastName) {
+        return new ResponseEntity<>(patientService.getPatientsByLastName(lastName), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")

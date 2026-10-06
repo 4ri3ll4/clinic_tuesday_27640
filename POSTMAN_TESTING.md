@@ -190,7 +190,9 @@ Save returned `id` as `patient5`.
 ## 5. Ten appointments
 
 Send each body separately to **POST http://localhost:8080/api/appointments/save**.
-Expected for each: **201**, a generated `id`, the submitted appointmentDate/reason/status, the resolved `patient` (UUID, names, dateOfBirth), and resolved `doctor` (UUID, names, dateOfBirth, office). Collections are omitted. Save returned IDs as `appointment1` through `appointment10`.
+Expected for each successful save: **201**, a generated `id`, the submitted appointmentDate/reason/status, the resolved `patient` (UUID, names, dateOfBirth), and resolved `doctor` (UUID, names, dateOfBirth, office). Collections are omitted. Save returned IDs as `appointment1` through `appointment10`.
+
+**Part A seed compatibility:** These are the original foundation seed bodies. With A4 enabled, Appointment 2 returns **409** because Appointment 1 already books Doctor 1 on October 5. When seeding a fresh database now, change Appointment 2's `appointmentDate` to `2026-10-06` to create all ten records successfully. Existing foundation data is retained; do not re-submit it. The original same-day pair can only remain as previously seeded data.
 
 Dates are date-only values in October and November 2026. The only valid statuses are SCHEDULED, CONFIRMED, COMPLETED and CANCELLED.
 
@@ -447,4 +449,105 @@ Before starting against old Exercise 4 data, inspect it locally: existing null d
 
 Run `mvn clean test` to compile the baseline. There are currently no automated test sources. Perform the HTTP/constraint checks above against your local PostgreSQL database and keep the terminal visible for the SQL demo.
 
-This baseline removes old Exercise 4 DTO/query endpoints. Quiz Parts A, B, C and Bonus are intentionally deferred.
+This baseline removes old Exercise 4 DTO/query endpoints. Part A is implemented below; Parts B, C and Bonus remain deferred.
+
+## PART A — DERIVED QUERIES
+
+Use the existing Postman environment variables from the seed sections. All GET requests below have **no body**. All repository queries use Spring Data method names; none uses `@Query`.
+
+### A1 — Patients by last name
+
+Send both requests:
+
+- **GET http://localhost:8080/api/patients/by-last-name?lastName=uwase**
+- **GET http://localhost:8080/api/patients/by-last-name?lastName=UWASE**
+
+Expected for each: **200 OK**, the same Patient array with **Diane Uwase first, Grace Uwase second**, ordered by firstName ascending. Each object contains id, firstName, lastName and dateOfBirth. A request with `lastName=NoSuchPatient` returns **200** and `[]`.
+
+Repository: `findByLastNameIgnoreCaseOrderByFirstNameAsc(String lastName)`.
+Service: `getPatientsByLastName(String lastName)`.
+Both `/api/patient` and `/api/patients` expose Patient routes, preserving old CRUD URLs.
+
+### A2 — Appointments by status
+
+**GET http://localhost:8080/api/appointments/by-status?status=SCHEDULED**
+
+Expected with the unmodified seed: **200 OK**, Appointments **1, 6, 10** ordered by appointmentDate: `2026-10-05`, `2026-11-02`, `2026-11-27`. Each entity includes its nested doctor and patient. Perform this before the earlier CRUD PUT example, which changes Appointment 1's status.
+
+Also test `status=CONFIRMED`, `status=COMPLETED` and `status=CANCELLED`; each returns only that status, earliest date first. Invalid enum values return **400**. A valid status with no matching rows returns **200** and `[]`.
+
+Repository: `findByStatusOrderByAppointmentDateAsc(AppointmentStatus status)`.
+Service: `getByStatus(AppointmentStatus status)`.
+
+### A3 — Inclusive appointment date range
+
+**GET http://localhost:8080/api/appointments/between?start=2026-10-01&end=2026-10-31**
+
+Expected with either the original foundation seed or the fresh-seed alternative above: **200 OK**, Appointments **1–5**, sorted by appointmentDate ascending. No November appointments appear. Equal-date rows have no guaranteed order relative to one another.
+
+To verify boundaries using existing rows:
+
+- **GET http://localhost:8080/api/appointments/between?start=2026-10-05&end=2026-10-25** includes appointments on both October 5 and October 25.
+- **GET http://localhost:8080/api/appointments/between?start=2026-10-25&end=2026-10-25** returns Appointment 5, showing that the same start/end date is included.
+- **GET http://localhost:8080/api/appointments/between?start=2027-01-01&end=2027-01-31** returns **200** and `[]` if no additional records were created for that period.
+
+Send dates as `yyyy-MM-dd`. The controller receives two Strings and calls `LocalDate.parse` on each, without try/catch. The service converts the parsed values to `java.sql.Date` to match Appointment.appointmentDate. `Between` includes both boundaries.
+
+Repository: `findByAppointmentDateBetweenOrderByAppointmentDateAsc(Date start, Date end)`.
+Service: `getBetweenDates(LocalDate start, LocalDate end)`.
+
+### A4 — Prevent Doctor double booking on save
+
+The existing **POST http://localhost:8080/api/appointments/save** endpoint performs the check in the service after validating and resolving doctor/patient references. Use raw JSON and `Content-Type: application/json`.
+
+Repository: `existsByDoctorIdAndAppointmentDateAndStatusNot(UUID doctorId, Date appointmentDate, AppointmentStatus status)`, called with `AppointmentStatus.CANCELLED`.
+
+#### TEST 1 — Conflict
+
+Doctor 1 already has a SCHEDULED appointment on October 5. Submit:
+
+```json
+{
+  "appointmentDate": "2026-10-05",
+  "reason": "Double booking test",
+  "status": "CONFIRMED",
+  "patient": { "id": "{{patient2}}" },
+  "doctor": { "id": "{{doctor1}}" }
+}
+```
+
+Expected: **409 CONFLICT**, with the exact plain text response body:
+
+```text
+Doctor is already booked on that date
+```
+
+No appointment is saved. Check **GET http://localhost:8080/api/appointments/all** before and after; the count must stay the same.
+
+Repeat with Doctor 3 on `2026-10-25` (existing CONFIRMED) and Doctor 1 on `2026-10-12` (existing COMPLETED): both must return the same **409** and exact text. The check looks at the existing appointment's status, so even a new CANCELLED request conflicts if an existing non-CANCELLED appointment books that doctor/date.
+
+#### TEST 2 — Allowed when the only existing appointment is CANCELLED
+
+Doctor 2's October 18 appointment is CANCELLED. Submit:
+
+```json
+{
+  "appointmentDate": "2026-10-18",
+  "reason": "Replacement for cancelled appointment",
+  "status": "SCHEDULED",
+  "patient": { "id": "{{patient5}}" },
+  "doctor": { "id": "{{doctor2}}" }
+}
+```
+
+Expected on the first submission: **201 CREATED**, the saved Appointment entity with generated id, date, reason, status, and resolved patient/doctor references. Capture the id as `partAReplacement`. There should now be two Doctor 2 appointments on that date: the old CANCELLED row and the new SCHEDULED row.
+
+Repeat this request: expected **409** with the exact conflict text, because the new SCHEDULED row now books that date. To restore the original seed, send **DELETE http://localhost:8080/api/appointments/delete/{{partAReplacement}}**, with no body; expect **200** and `Appointment deleted successfully`.
+
+An unbooked date is also allowed: repeat the body with `appointmentDate` set to `2026-11-30`, assuming Doctor 2 has no non-CANCELLED booking on that date. Expect **201** and delete the temporary record afterwards.
+
+A4 modifies only POST save. Existing appointment PUT behavior is preserved. Doctor's required Office and unique Office number constraints remain unchanged.
+
+### Part A validation scope
+
+Run `mvn clean test`. The repository currently has no automated test sources. The HTTP results above are manual PostgreSQL/Postman checks to perform locally; compilation alone does not prove database-backed query results.
