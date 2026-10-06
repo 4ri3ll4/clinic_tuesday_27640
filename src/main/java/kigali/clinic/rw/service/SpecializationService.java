@@ -37,6 +37,10 @@ public class SpecializationService {
 
     public List<Specialization> getAll() { return specializationRepo.findAll(); }
 
+    public List<Specialization> getUnusedSpecializations() {
+        return specializationRepo.findUnusedSpecializations();
+    }
+
     public Optional<Specialization> getById(UUID id) { return specializationRepo.findById(id); }
 
     public Optional<Specialization> update(UUID id, Specialization specialization) {

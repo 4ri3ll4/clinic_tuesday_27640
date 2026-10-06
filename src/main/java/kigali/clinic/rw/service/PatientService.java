@@ -12,6 +12,7 @@ import kigali.clinic.rw.repository.AppointmentRepository;
 
 import kigali.clinic.rw.domain.Patient;
 import kigali.clinic.rw.repository.PatientRepository;
+import kigali.clinic.rw.repository.DoctorRepository;
 
 @Service
 public class PatientService {
@@ -21,6 +22,9 @@ public class PatientService {
 
     @Autowired
     private AppointmentRepository appointmentRepo;
+
+    @Autowired
+    private DoctorRepository doctorRepo;
 
     public Patient savePatient(Patient patient) {
         if (patient.getId() != null) {
@@ -35,6 +39,13 @@ public class PatientService {
 
     public List<Patient> getPatientsByLastName(String lastName) {
         return patientRepo.findByLastNameIgnoreCaseOrderByFirstNameAsc(lastName);
+    }
+
+    public Optional<List<Patient>> getPatientsOfDoctor(UUID doctorId) {
+        if (!doctorRepo.existsById(doctorId)) {
+            return Optional.empty();
+        }
+        return Optional.of(patientRepo.findPatientsOfDoctor(doctorId));
     }
 
     public Optional<Patient> getPatientById(UUID id) {

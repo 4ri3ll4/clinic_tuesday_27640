@@ -551,3 +551,86 @@ A4 modifies only POST save. Existing appointment PUT behavior is preserved. Doct
 ### Part A validation scope
 
 Run `mvn clean test`. The repository currently has no automated test sources. The HTTP results above are manual PostgreSQL/Postman checks to perform locally; compilation alone does not prove database-backed query results.
+
+## PART B — JPQL QUERIES
+
+All requests below use **GET**, with **no body**, and the existing Postman environment variables. Each Part B repository method uses JPQL `@Query`, entity/property names and entity results. Existing CRUD and Part A requests remain available. `/api/doctors` is an alias for `/api/doctor`; both support the existing Doctor CRUD routes.
+
+### B1 — Doctors by specialization
+
+- **GET http://localhost:8080/api/doctors/by-specialization?name=cardiology**
+- **GET http://localhost:8080/api/doctors/by-specialization?name=CARDIOLOGY**
+
+Expected with the documented seed: **200 OK**, the same Doctor array containing **Jean Niyonzima (Doctor 1)** for both requests. Each Doctor includes id, firstName, lastName, dateOfBirth and its Office. The ignored specialization/appointment collections remain omitted from JSON.
+
+Also test **GET http://localhost:8080/api/doctors/by-specialization?name=Dermatology**: expect Doctors 1 and 3, each once. **GET http://localhost:8080/api/doctors/by-specialization?name=NoSuchSpecialization** returns **200** and `[]`.
+
+Repository method: `findDoctorsBySpecialization(String name)`.
+
+```jpql
+SELECT DISTINCT d FROM Doctor d JOIN d.specializations s WHERE LOWER(s.name) = LOWER(:name)
+```
+
+### B2 — Doctors without an Office
+
+**GET http://localhost:8080/api/doctors/without-office**
+
+Expected: **200 OK** and `[]`. Our valid data cannot contain a Doctor without an Office: the mandatory one-to-one relationship and non-null office_id remain intact. Do not remove an Office assignment or relax the constraint to produce a result. The query orders any matching Doctors by lastName ascending.
+
+Repository method: `findDoctorsWithoutOffice()`.
+
+```jpql
+SELECT d FROM Doctor d WHERE d.office IS NULL ORDER BY d.lastName ASC
+```
+
+### B3 — Unused specializations
+
+**GET http://localhost:8080/api/specializations/unused**
+
+Expected with the documented assignments: **200 OK**, an array containing Neurology:
+
+```json
+[
+  { "id": "<Neurology UUID>", "name": "Neurology" }
+]
+```
+
+The UUID should equal `{{neurology}}`. No Doctors were assigned to Neurology. If assignments were changed or Doctors were deleted, other unused Specializations may also appear. No result ordering is specified.
+
+Repository method: `findUnusedSpecializations()`.
+
+```jpql
+SELECT s FROM Specialization s WHERE s.doctors IS EMPTY
+```
+
+### B4 — Distinct Patients of a Doctor
+
+**GET http://localhost:8080/api/patients/of-doctor/{{doctor1}}**
+
+Expected with the seed: **200 OK**, Patient entities for **Grace Uwase (Patient 1)** and **Diane Uwase (Patient 2)**, each once. Grace has several appointments with Doctor 1 but must appear only once. Results have no guaranteed order. This expectation also holds when Appointment 2 uses the fresh-seed October 6 alternative described above. Each Patient contains id, firstName, lastName and dateOfBirth.
+
+Repository method: `findPatientsOfDoctor(UUID doctorId)`.
+
+```jpql
+SELECT DISTINCT p FROM Patient p JOIN p.appointments a WHERE a.doctor.id = :doctorId
+```
+
+No status filter is applied: appointments of any status, including CANCELLED, establish the Patient/Doctor relationship. For example, **GET http://localhost:8080/api/patients/of-doctor/{{doctor3}}** includes Patients 4 and 5. An existing Doctor with no Appointments returns **200** and `[]`.
+
+#### Nonexistent Doctor test
+
+**GET http://localhost:8080/api/patients/of-doctor/00000000-0000-0000-0000-000000000000**
+
+Use this UUID only after verifying it is absent from **GET http://localhost:8080/api/doctors/all**; otherwise use another absent UUID.
+
+Expected: **404 NOT FOUND**, with this exact plain text body (no quotation marks):
+
+```text
+The doctor with that id does not exist
+```
+
+The service checks Doctor existence before running the Patient JPQL query. A nonexistent Doctor is distinct from an existing Doctor with no Appointments. A malformed UUID is a separate binding error and returns **400**.
+
+### Part B validation scope
+
+Run `mvn clean test`, then perform these requests against your local PostgreSQL database. The project has no automated test sources; a successful Maven build alone does not establish the database/Postman results. Parts C and Bonus remain deferred.

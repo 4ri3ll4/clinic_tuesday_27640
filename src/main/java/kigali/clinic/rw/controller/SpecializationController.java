@@ -25,6 +25,11 @@ public class SpecializationController {
     @GetMapping({"", "/all"})
     public List<Specialization> getAll() { return specializationService.getAll(); }
 
+    @GetMapping("/unused")
+    public List<Specialization> getUnusedSpecializations() {
+        return specializationService.getUnusedSpecializations();
+    }
+
     @PostMapping("/{specializationId}/doctors/{doctorId}")
     public ResponseEntity<?> assignDoctor(@PathVariable UUID specializationId, @PathVariable UUID doctorId) {
         return ResponseEntity.ok(specializationService.assignDoctor(specializationId, doctorId));

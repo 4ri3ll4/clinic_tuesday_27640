@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kigali.clinic.rw.domain.Doctor;
 import kigali.clinic.rw.service.DoctorService;
 
 @RestController
-@RequestMapping(value = "/api/doctor")
+@RequestMapping(value = {"/api/doctor", "/api/doctors"})
 public class DoctorController {
 
     @Autowired
@@ -34,6 +35,16 @@ public class DoctorController {
     @GetMapping(value = "/all")
     public ResponseEntity<List<Doctor>> getAllDoctors() {
         return new ResponseEntity<>(doctorService.getAllDoctors(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/by-specialization")
+    public ResponseEntity<List<Doctor>> getDoctorsBySpecialization(@RequestParam String name) {
+        return new ResponseEntity<>(doctorService.getDoctorsBySpecialization(name), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/without-office")
+    public ResponseEntity<List<Doctor>> getDoctorsWithoutOffice() {
+        return new ResponseEntity<>(doctorService.getDoctorsWithoutOffice(), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{id}")

@@ -42,6 +42,12 @@ public class PatientController {
         return new ResponseEntity<>(patientService.getPatientsByLastName(lastName), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/of-doctor/{doctorId}")
+    public ResponseEntity<?> getPatientsOfDoctor(@PathVariable UUID doctorId) {
+        return patientService.getPatientsOfDoctor(doctorId).<ResponseEntity<?>>map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("The doctor with that id does not exist"));
+    }
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getPatientById(@PathVariable UUID id) {
         Optional<Patient> patient = patientService.getPatientById(id);
