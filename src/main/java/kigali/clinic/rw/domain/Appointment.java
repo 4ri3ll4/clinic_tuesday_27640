@@ -1,6 +1,6 @@
 package kigali.clinic.rw.domain;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -25,7 +25,7 @@ public class Appointment {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column (name="appointment_date")
-    private Date appointmentDate;
+    private LocalDate appointmentDate;
 
     @Column (name="reason")
     private String reason;
@@ -46,11 +46,11 @@ public class Appointment {
         return id;
     }
 
-    public Date getAppointmentDate() {
+    public LocalDate getAppointmentDate() {
         return appointmentDate;
     }
 
-    public void setAppointmentDate(Date appointmentDate) {
+    public void setAppointmentDate(LocalDate appointmentDate) {
         this.appointmentDate = appointmentDate;
     }
 

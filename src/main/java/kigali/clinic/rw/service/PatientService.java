@@ -37,6 +37,10 @@ public class PatientService {
         return patientRepo.findAll();
     }
 
+    public List<Patient> getFrequentPatients(int min) {
+        return patientRepo.findFrequentPatients(min);
+    }
+
     public List<Patient> getPatientsByLastName(String lastName) {
         return patientRepo.findByLastNameIgnoreCaseOrderByFirstNameAsc(lastName);
     }

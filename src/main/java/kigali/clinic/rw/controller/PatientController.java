@@ -37,6 +37,11 @@ public class PatientController {
         return new ResponseEntity<>(patientService.getAllPatients(), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/frequent")
+    public ResponseEntity<List<Patient>> getFrequentPatients(@RequestParam int min) {
+        return new ResponseEntity<>(patientService.getFrequentPatients(min), HttpStatus.OK);
+    }
+
     @GetMapping(value = "/by-last-name")
     public ResponseEntity<List<Patient>> getPatientsByLastName(@RequestParam String lastName) {
         return new ResponseEntity<>(patientService.getPatientsByLastName(lastName), HttpStatus.OK);

@@ -3,6 +3,9 @@ package kigali.clinic.rw.controller;
 import java.util.List;
 import java.util.UUID;
 import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +31,30 @@ public class AppointmentController {
 
     @GetMapping({"", "/all"})
     public List<Appointment> getAll() { return appointmentService.getAll(); }
+
+    @GetMapping("/page")
+    public Page<Appointment> getAppointmentsPage(Pageable pageable) {
+        return appointmentService.getAppointmentsPage(pageable);
+    }
+
+    @DeleteMapping("/cancelled-before")
+    public String deleteCancelledBefore(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        int count = appointmentService.deleteCancelledBefore(date);
+        return count + " appointments deleted";
+    }
+
+    @GetMapping("/stats/by-status")
+    public List<Object[]> getAppointmentStatsByStatus() {
+        return appointmentService.getAppointmentStatsByStatus();
+    }
+
+    @PatchMapping("/cancel-day")
+    public String cancelDoctorDay(@RequestParam UUID doctorId, @RequestParam String date) {
+        LocalDate appointmentDate = LocalDate.parse(date);
+        int count = appointmentService.cancelDoctorDay(doctorId, appointmentDate);
+        return count + " appointments cancelled";
+    }
 
     @GetMapping("/by-status")
     public List<Appointment> getByStatus(@RequestParam AppointmentStatus status) {

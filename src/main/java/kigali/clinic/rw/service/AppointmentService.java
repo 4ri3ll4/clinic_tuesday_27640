@@ -3,10 +3,12 @@ package kigali.clinic.rw.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.sql.Date;
 import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import kigali.clinic.rw.domain.Appointment;
 import kigali.clinic.rw.domain.AppointmentStatus;
@@ -54,13 +56,32 @@ public class AppointmentService {
     public List<Appointment> getAll() { return appointmentRepo.findAll(); }
     public Optional<Appointment> getById(UUID id) { return appointmentRepo.findById(id); }
 
+    public Page<Appointment> getAppointmentsPage(Pageable pageable) {
+        return appointmentRepo.findAll(pageable);
+    }
+
+    @Transactional
+    public int deleteCancelledBefore(LocalDate date) {
+        return appointmentRepo.deleteCancelledBefore(date, AppointmentStatus.CANCELLED);
+    }
+
+    public List<Object[]> getAppointmentStatsByStatus() {
+        return appointmentRepo.getAppointmentStatsByStatus();
+    }
+
+    @Transactional
+    public int cancelDoctorDay(UUID doctorId, LocalDate date) {
+        return appointmentRepo.cancelDoctorDay(doctorId, date,
+            AppointmentStatus.CANCELLED, AppointmentStatus.COMPLETED);
+    }
+
     public List<Appointment> getByStatus(AppointmentStatus status) {
         return appointmentRepo.findByStatusOrderByAppointmentDateAsc(status);
     }
 
     public List<Appointment> getBetweenDates(LocalDate start, LocalDate end) {
         return appointmentRepo.findByAppointmentDateBetweenOrderByAppointmentDateAsc(
-            Date.valueOf(start), Date.valueOf(end));
+            start, end);
     }
 
     public Optional<Appointment> update(UUID id, Appointment appointment) {

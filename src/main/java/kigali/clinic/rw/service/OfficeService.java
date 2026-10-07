@@ -33,6 +33,12 @@ public class OfficeService {
     public List<Office> getAllOffices() { return offRepo.findAll(); }
     public Optional<Office> getOfficeById(UUID id) { return offRepo.findById(id); }
 
+    public Optional<Object[]> getBusiestOffice() {
+        List<Object[]> offices = offRepo.findOfficesByAppointmentCount();
+        if (offices.isEmpty()) return Optional.empty();
+        return Optional.of(offices.get(0));
+    }
+
     public Optional<Office> updateOffice(UUID id, Office office) {
         Optional<Office> existing = offRepo.findById(id);
         if (existing.isEmpty()) return Optional.empty();
