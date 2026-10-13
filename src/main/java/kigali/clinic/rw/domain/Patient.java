@@ -29,6 +29,9 @@ public class Patient {
 
     @Column (name="last_name")
     private String lastName;
+    
+    @Column (name = "ss_number")
+    private String ssNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column (name="date_of_birth")
@@ -72,6 +75,14 @@ public class Patient {
 
     public void setAppointments(List<Appointment> appointments) {
         this.appointments = appointments;
+    }
+
+    public String getSsNumber() {
+        return ssNumber;
+    }
+
+    public void setSsNumber(String ssNumber) {
+        this.ssNumber = ssNumber;
     }
 
     
