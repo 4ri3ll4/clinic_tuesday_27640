@@ -72,4 +72,16 @@ public class DoctorController {
         }
         return new ResponseEntity<>("Doctor not found", HttpStatus.NOT_FOUND);
     }
+
+    @PutMapping("/{doctorId}/specializations/{specializationId}")
+    public ResponseEntity<?> assignSpecialization(
+            @PathVariable("doctorId") UUID doctorId,
+            @PathVariable("specializationId") UUID specializationId) {
+
+        Doctor doctor = doctorService.assignSpecialization(
+            doctorId, specializationId
+        );
+
+        return new ResponseEntity<>(doctor, HttpStatus.OK);
+    }
 }

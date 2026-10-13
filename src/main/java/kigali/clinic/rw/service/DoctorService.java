@@ -15,6 +15,7 @@ import kigali.clinic.rw.repository.DoctorRepository;
 import kigali.clinic.rw.repository.OfficeRepository;
 import kigali.clinic.rw.repository.AppointmentRepository;
 import kigali.clinic.rw.domain.Specialization;
+import kigali.clinic.rw.repository.SpecializationRepository;
 
 @Service
 public class DoctorService {
@@ -27,6 +28,9 @@ public class DoctorService {
 
     @Autowired
     private AppointmentRepository appointmentRepo;
+
+    @Autowired
+    private SpecializationRepository specializationRepo;
 
     private void resolveOffice(Doctor doctor, UUID doctorId) {
         if (doctor.getOffice() == null || doctor.getOffice().getId() == null) {
@@ -96,5 +100,42 @@ public class DoctorService {
         }
         doctorRepo.delete(doctor);
         return true;
+    }
+
+    @Transactional
+    public Doctor assignSpecialization(UUID doctorId, UUID specializationId) {
+
+        Optional<Doctor> existingDoctor = doctorRepo.findById(doctorId);
+
+        if (existingDoctor.isEmpty()) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Doctor not found"
+            );
+        }
+
+        Optional<Specialization> existingSpecialization =
+                specializationRepo.findById(specializationId);
+
+        if (existingSpecialization.isEmpty()) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Specialization not found"
+            );
+        }
+
+        Doctor doctor = existingDoctor.get();
+        Specialization specialization = existingSpecialization.get();
+
+        for (Specialization s : doctor.getSpecializations()) {
+            if (s.getId().equals(specializationId)) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Doctor already has this specialization"
+                );
+            }
+        }
+
+        doctor.getSpecializations().add(specialization);
+
+        return doctorRepo.save(doctor);
     }
 }

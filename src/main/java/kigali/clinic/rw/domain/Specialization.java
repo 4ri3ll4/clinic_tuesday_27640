@@ -18,12 +18,7 @@ public class Specialization {
     private String name;
 
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-        name = "doctor_specialization",
-        joinColumns = @JoinColumn(name = "specialization_id"),
-        inverseJoinColumns = @JoinColumn(name = "doctor_id")
-    )
+    @ManyToMany(mappedBy = "specializations")
     private List<Doctor> doctors = new ArrayList<>();
 
     public UUID getId() { return id; }
