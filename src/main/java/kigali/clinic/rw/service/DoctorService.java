@@ -138,4 +138,39 @@ public class DoctorService {
 
         return doctorRepo.save(doctor);
     }
+
+    @Transactional
+    public Doctor removeSpecialization(UUID doctorId, UUID specializationId) {
+
+        Optional<Doctor> existingDoctor = doctorRepo.findById(doctorId);
+
+        if (existingDoctor.isEmpty()) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Doctor not found"
+            );
+        }
+
+        Optional<Specialization> existingSpecialization =
+                specializationRepo.findById(specializationId);
+
+        if (existingSpecialization.isEmpty()) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Specialization not found"
+            );
+        }
+
+        Doctor doctor = existingDoctor.get();
+
+        boolean removed = doctor.getSpecializations()
+            .removeIf(s -> s.getId().equals(specializationId));
+
+        if (!removed) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Doctor does not have this specialization"
+            );
+        }
+
+        return doctorRepo.save(doctor);
+    }
 }

@@ -84,4 +84,16 @@ public class DoctorController {
 
         return new ResponseEntity<>(doctor, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{doctorId}/specializations/{specializationId}")
+    public ResponseEntity<?> removeSpecialization(
+            @PathVariable("doctorId") UUID doctorId,
+            @PathVariable("specializationId") UUID specializationId) {
+
+        Doctor doctor = doctorService.removeSpecialization(
+            doctorId, specializationId
+        );
+
+        return new ResponseEntity<>(doctor, HttpStatus.OK);
+    }
 }
