@@ -51,4 +51,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
         LocalDate today,
         List<AppointmentStatus> statuses
     );
+
+    // D4: Count appointments by status
+    long countByStatus(AppointmentStatus status);
 }
