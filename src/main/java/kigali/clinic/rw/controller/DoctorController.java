@@ -128,4 +128,15 @@ public class DoctorController {
 
         return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
+
+    // Bonus 2: Doctor workload
+    @GetMapping("/workload")
+    public ResponseEntity<List<Object[]>> getDoctorWorkload(
+            @RequestParam("start") LocalDate start,
+            @RequestParam("end") LocalDate end) {
+
+        List<Object[]> workload = doctorService.getDoctorWorkload(start, end);
+
+        return new ResponseEntity<>(workload, HttpStatus.OK);
+    }
 }

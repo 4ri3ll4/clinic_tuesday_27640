@@ -1,5 +1,6 @@
 package kigali.clinic.rw.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -202,5 +203,18 @@ public class DoctorService {
         doctor.setOffice(office);
 
         return doctorRepo.save(doctor);
+    }
+
+    // Bonus 2: Get doctor workload
+    public List<Object[]> getDoctorWorkload(LocalDate start, LocalDate end) {
+
+        if (start == null || end == null || start.isAfter(end)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid date range"
+            );
+        }
+
+        return doctorRepo.findDoctorWorkload(start, end);
     }
 }
