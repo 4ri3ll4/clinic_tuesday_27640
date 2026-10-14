@@ -264,4 +264,29 @@ public class AppointmentService {
                 doctorId, start, end
             );
     }
+
+    // D2: Get upcoming appointments for a patient
+    public List<Appointment> getPatientUpcomingAppointments(UUID patientId) {
+
+        // Check if the patient exists
+        if (!patientRepo.existsById(patientId)) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Patient not found"
+            );
+        }
+
+        // Only appointments that are still active
+        List<AppointmentStatus> activeStatuses = List.of(
+            AppointmentStatus.SCHEDULED,
+            AppointmentStatus.CONFIRMED
+        );
+
+        return appointmentRepo
+            .findByPatientIdAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                patientId,
+                LocalDate.now(),
+                activeStatuses
+            );
+    }
 }

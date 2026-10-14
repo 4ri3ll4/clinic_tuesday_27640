@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kigali.clinic.rw.domain.Patient;
 import kigali.clinic.rw.service.PatientService;
+import kigali.clinic.rw.domain.Appointment;
+import kigali.clinic.rw.service.AppointmentService;
 
 @RestController
 @RequestMapping(value = {"/api/patient", "/api/patients"})
@@ -26,6 +28,9 @@ public class PatientController {
 
     @Autowired
     private PatientService patientService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     @PostMapping(value = "/save")
     public ResponseEntity<Patient> savePatient(@RequestBody Patient patient) {
@@ -77,5 +82,16 @@ public class PatientController {
             return new ResponseEntity<>("Patient deleted successfully", HttpStatus.OK);
         }
         return new ResponseEntity<>("Patient not found", HttpStatus.NOT_FOUND);
+    }
+
+    // D2: Patient upcoming appointments
+    @GetMapping("/{patientId}/upcoming")
+    public ResponseEntity<List<Appointment>> getUpcomingAppointments(
+            @PathVariable("patientId") UUID patientId) {
+
+        List<Appointment> appointments =
+            appointmentService.getPatientUpcomingAppointments(patientId);
+
+        return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 }

@@ -44,4 +44,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
         LocalDate start,
         LocalDate end
     );
+
+    // D2: Find a patient's upcoming appointments
+    List<Appointment> findByPatientIdAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+        UUID patientId,
+        LocalDate today,
+        List<AppointmentStatus> statuses
+    );
 }
