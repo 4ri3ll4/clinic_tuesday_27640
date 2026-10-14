@@ -139,7 +139,7 @@ public class AppointmentService {
                 "Cannot delete an appointment that has prescriptions"
             );
         }
-        
+
         //delete the appointment if it has no prescriptions
         appointmentRepo.deleteById(id);
         return true;
@@ -237,5 +237,31 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.SCHEDULED);
 
         return appointmentRepo.save(appointment);
+    }
+
+    // D1: Get a doctor's agenda
+    public List<Appointment> getDoctorAgenda(
+            UUID doctorId, LocalDate start, LocalDate end) {
+
+        // Check if the doctor exists
+        if (!doctorRepo.existsById(doctorId)) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Doctor not found"
+            );
+        }
+
+        // Check the date range
+        if (start == null || end == null || start.isAfter(end)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid date range"
+            );
+        }
+
+        return appointmentRepo
+            .findByDoctorIdAndAppointmentDateBetweenOrderByAppointmentDateAsc(
+                doctorId, start, end
+            );
     }
 }

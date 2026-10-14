@@ -37,4 +37,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
         AppointmentStatus status,
         UUID id
     );
+
+    // D1: Find doctor's appointments between two dates
+    List<Appointment> findByDoctorIdAndAppointmentDateBetweenOrderByAppointmentDateAsc(
+        UUID doctorId,
+        LocalDate start,
+        LocalDate end
+    );
 }

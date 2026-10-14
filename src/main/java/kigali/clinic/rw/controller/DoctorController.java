@@ -1,5 +1,6 @@
 package kigali.clinic.rw.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kigali.clinic.rw.domain.Doctor;
+import kigali.clinic.rw.service.AppointmentService;
 import kigali.clinic.rw.service.DoctorService;
+import kigali.clinic.rw.domain.Appointment;
 
 @RestController
 @RequestMapping(value = {"/api/doctor", "/api/doctors"})
@@ -27,6 +30,9 @@ public class DoctorController {
 
     @Autowired
     private DoctorService doctorService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     @PostMapping(value = "/save")
     public ResponseEntity<Doctor> saveDoctor(@RequestBody Doctor doctor) {
@@ -108,5 +114,18 @@ public class DoctorController {
         );
 
         return new ResponseEntity<>(doctor, HttpStatus.OK);
+    }
+
+    // D1: Doctor agenda
+    @GetMapping("/{doctorId}/agenda")
+    public ResponseEntity<List<Appointment>> getDoctorAgenda(
+            @PathVariable("doctorId") UUID doctorId,
+            @RequestParam("start") LocalDate start,
+            @RequestParam("end") LocalDate end) {
+
+        List<Appointment> appointments =
+            appointmentService.getDoctorAgenda(doctorId, start, end);
+
+        return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 }
