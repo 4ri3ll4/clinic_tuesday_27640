@@ -48,4 +48,10 @@ public class OfficeController {
             ? ResponseEntity.ok("Office deleted successfully")
             : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Office not found");
     }
+
+    @GetMapping("/free")
+    public ResponseEntity<List<Office>> getFreeOffices() {
+        List<Office> offices = offServe.getFreeOffices();
+        return new ResponseEntity<>(offices, HttpStatus.OK);
+    }
 }
