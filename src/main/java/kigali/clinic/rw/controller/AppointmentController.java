@@ -95,4 +95,16 @@ public class AppointmentController {
 
         return new ResponseEntity<>(appointment, HttpStatus.OK);
     }
+
+    @PatchMapping("/{id}/reschedule")
+    public ResponseEntity<Appointment> rescheduleAppointment(
+            @PathVariable("id") UUID id,
+            @RequestParam("newDate") LocalDate newDate) {
+
+        Appointment appointment = appointmentService.rescheduleAppointment(
+            id, newDate
+        );
+
+        return new ResponseEntity<>(appointment, HttpStatus.OK);
+    }
 }

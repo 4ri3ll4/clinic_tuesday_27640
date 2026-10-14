@@ -30,4 +30,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Appointment a WHERE a.status = :status AND a.appointmentDate < :date")
     int deleteCancelledBefore(@Param("date") LocalDate date, @Param("status") AppointmentStatus status);
+
+    boolean existsByDoctorIdAndAppointmentDateAndStatusNotAndIdNot(
+        UUID doctorId,
+        LocalDate appointmentDate,
+        AppointmentStatus status,
+        UUID id
+    );
 }

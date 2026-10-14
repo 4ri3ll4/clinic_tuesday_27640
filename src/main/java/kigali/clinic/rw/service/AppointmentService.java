@@ -170,4 +170,52 @@ public class AppointmentService {
 
         return appointmentRepo.save(appointment);
     }
+
+    public Appointment rescheduleAppointment(UUID id, LocalDate newDate) {
+
+        // Find the appointment
+        Appointment appointment = appointmentRepo.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Appointment not found"
+            ));
+
+        // B3: Check the new date
+        if (newDate == null || newDate.isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "New appointment date cannot be in the past"
+            );
+        }
+
+        // B3: Completed or cancelled appointments cannot be rescheduled
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED ||
+            appointment.getStatus() == AppointmentStatus.CANCELLED) {
+
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Completed or cancelled appointments cannot be rescheduled"
+            );
+        }
+
+        // B3: Check if another appointment already exists for the doctor
+        boolean booked = appointmentRepo.existsByDoctorIdAndAppointmentDateAndStatusNotAndIdNot(
+            appointment.getDoctor().getId(),
+            newDate,
+            AppointmentStatus.CANCELLED,
+            id
+        );
+
+        if (booked) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Doctor is already booked on the new date"
+            );
+        }
+
+        // B3: Update the date and reset the status
+        appointment.setAppointmentDate(newDate);
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
+
+        return appointmentRepo.save(appointment);
+    }
 }
