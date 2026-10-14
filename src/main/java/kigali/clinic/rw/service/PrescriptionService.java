@@ -178,4 +178,9 @@ public class PrescriptionService {
 
         prescriptionRepo.delete(prescription);
     }
+
+    // Bonus 1: Get most prescribed medicines
+    public List<Object[]> getTopMedicines() {
+        return prescriptionRepo.findTopMedicines();
+    }
 }

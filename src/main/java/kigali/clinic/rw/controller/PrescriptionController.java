@@ -75,4 +75,13 @@ public class PrescriptionController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    // Bonus 1: Most prescribed medicines
+    @GetMapping("/stats/top-medicines")
+    public ResponseEntity<List<Object[]>> getTopMedicines() {
+
+        List<Object[]> medicines = prescriptionService.getTopMedicines();
+
+        return new ResponseEntity<>(medicines, HttpStatus.OK);
+    }
 }
