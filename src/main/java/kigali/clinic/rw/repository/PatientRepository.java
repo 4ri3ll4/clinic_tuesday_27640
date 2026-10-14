@@ -19,4 +19,10 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
     @Query("SELECT p FROM Patient p JOIN p.appointments a GROUP BY p HAVING COUNT(a) >= :min ORDER BY COUNT(a) DESC")
     List<Patient> findFrequentPatients(@Param("min") int min);
+
+    // D3: Search patients by first or last name
+    List<Patient> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+        String firstName,
+        String lastName
+    );
 }

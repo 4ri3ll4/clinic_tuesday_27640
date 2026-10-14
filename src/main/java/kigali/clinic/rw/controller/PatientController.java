@@ -94,4 +94,14 @@ public class PatientController {
 
         return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
+
+    // D3: Search patients by name
+    @GetMapping("/search")
+    public ResponseEntity<List<Patient>> searchPatients(
+            @RequestParam("name") String name) {
+
+        List<Patient> patients = patientService.searchPatientsByName(name);
+
+        return new ResponseEntity<>(patients, HttpStatus.OK);
+    }
 }

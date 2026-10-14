@@ -81,4 +81,23 @@ public class PatientService {
         patientRepo.deleteById(id);
         return true;
     }
+
+    // D3: Search patients by name
+    public List<Patient> searchPatientsByName(String name) {
+
+        if (name == null || name.isBlank()) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Search name is required"
+            );
+        }
+
+        String searchName = name.trim();
+
+        return patientRepo
+            .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+                searchName,
+                searchName
+            );
+    }
 }
