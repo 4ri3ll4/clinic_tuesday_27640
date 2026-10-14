@@ -16,6 +16,7 @@ import kigali.clinic.rw.repository.OfficeRepository;
 import kigali.clinic.rw.repository.AppointmentRepository;
 import kigali.clinic.rw.domain.Specialization;
 import kigali.clinic.rw.repository.SpecializationRepository;
+import kigali.clinic.rw.domain.Office;
 
 @Service
 public class DoctorService {
@@ -170,6 +171,35 @@ public class DoctorService {
                 "Doctor does not have this specialization"
             );
         }
+
+        return doctorRepo.save(doctor);
+    }
+
+    @Transactional
+    public Doctor reassignOffice(UUID doctorId, Integer officeNumber) {
+
+        Doctor doctor = doctorRepo.findById(doctorId)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Doctor not found"
+            ));
+
+        Office office = officeRepo.findByOfficeNumber(officeNumber)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Office not found"
+            ));
+
+        boolean occupied = doctorRepo.existsByOfficeIdAndIdNot(
+            office.getId(), doctorId
+        );
+
+        if (occupied) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Office is already assigned to another doctor"
+            );
+        }
+
+        doctor.setOffice(office);
 
         return doctorRepo.save(doctor);
     }

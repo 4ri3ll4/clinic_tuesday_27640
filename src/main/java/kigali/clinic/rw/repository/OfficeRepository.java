@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import kigali.clinic.rw.domain.Office;
-import org.springframework.data.jpa.repository.Query;
+
 
 @Repository 
 public interface OfficeRepository extends JpaRepository<Office,UUID> {
