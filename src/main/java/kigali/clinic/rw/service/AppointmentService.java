@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.time.LocalDate;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,12 +17,16 @@ import kigali.clinic.rw.domain.AppointmentStatus;
 import kigali.clinic.rw.repository.AppointmentRepository;
 import kigali.clinic.rw.repository.DoctorRepository;
 import kigali.clinic.rw.repository.PatientRepository;
+import kigali.clinic.rw.repository.PrescriptionRepository;
 
 @Service
 public class AppointmentService {
     private final AppointmentRepository appointmentRepo;
     private final DoctorRepository doctorRepo;
     private final PatientRepository patientRepo;
+
+    @Autowired
+    private PrescriptionRepository prescriptionRepo;
 
     public AppointmentService(AppointmentRepository appointmentRepo, DoctorRepository doctorRepo, PatientRepository patientRepo) {
         this.appointmentRepo = appointmentRepo;
@@ -120,11 +126,25 @@ public class AppointmentService {
         return Optional.of(appointmentRepo.save(target));
     }
 
+    //C5: Prevent deletion of appointments with prescriptions
     public boolean delete(UUID id) {
-        if (!appointmentRepo.existsById(id)) return false;
+        if (!appointmentRepo.existsById(id)) {
+            return false;
+        }
+
+        //check if the appointment has prescriptions
+        if (prescriptionRepo.existsByAppointmentId(id)) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Cannot delete an appointment that has prescriptions"
+            );
+        }
+        
+        //delete the appointment if it has no prescriptions
         appointmentRepo.deleteById(id);
         return true;
     }
+
 
     public Appointment updateStatus(UUID id, AppointmentStatus newStatus) {
 

@@ -81,9 +81,11 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable UUID id) {
-        return appointmentService.delete(id) ? ResponseEntity.ok("Appointment deleted successfully")
-            : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found");
+    public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
+        if (appointmentService.delete(id)) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found");
     }
 
     @PatchMapping("/{id}/status")
