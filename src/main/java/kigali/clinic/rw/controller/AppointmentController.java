@@ -85,4 +85,14 @@ public class AppointmentController {
         return appointmentService.delete(id) ? ResponseEntity.ok("Appointment deleted successfully")
             : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found");
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Appointment> updateStatus(
+            @PathVariable("id") UUID id,
+            @RequestParam("status") AppointmentStatus status) {
+
+        Appointment appointment = appointmentService.updateStatus(id, status);
+
+        return new ResponseEntity<>(appointment, HttpStatus.OK);
+    }
 }

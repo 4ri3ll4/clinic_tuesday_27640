@@ -115,7 +115,6 @@ public class AppointmentService {
         Appointment target = existing.get();
         target.setAppointmentDate(appointment.getAppointmentDate());
         target.setReason(appointment.getReason());
-        target.setStatus(appointment.getStatus());
         target.setDoctor(appointment.getDoctor());
         target.setPatient(appointment.getPatient());
         return Optional.of(appointmentRepo.save(target));
@@ -125,5 +124,50 @@ public class AppointmentService {
         if (!appointmentRepo.existsById(id)) return false;
         appointmentRepo.deleteById(id);
         return true;
+    }
+
+    public Appointment updateStatus(UUID id, AppointmentStatus newStatus) {
+
+        Appointment appointment = appointmentRepo.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Appointment not found"
+            ));
+
+        AppointmentStatus currentStatus = appointment.getStatus();
+
+        if (newStatus == null) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Status is required"
+            );
+        }
+
+        if (currentStatus == AppointmentStatus.SCHEDULED) {
+
+            if (newStatus != AppointmentStatus.CONFIRMED &&
+                newStatus != AppointmentStatus.CANCELLED) {
+                throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Invalid status change"
+                );
+            }
+
+        } else if (currentStatus == AppointmentStatus.CONFIRMED) {
+
+            if (newStatus != AppointmentStatus.COMPLETED &&
+                newStatus != AppointmentStatus.CANCELLED) {
+                throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Invalid status change"
+                );
+            }
+
+        } else {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Completed or cancelled appointments cannot change status"
+            );
+        }
+
+        appointment.setStatus(newStatus);
+
+        return appointmentRepo.save(appointment);
     }
 }
