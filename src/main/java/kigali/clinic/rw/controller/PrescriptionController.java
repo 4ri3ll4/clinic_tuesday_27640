@@ -53,4 +53,26 @@ public class PrescriptionController {
 
         return new ResponseEntity<>(prescriptions, HttpStatus.OK);
     }
+
+    // C4: Update prescription
+    @PutMapping("/{id}")
+    public ResponseEntity<Prescription> updatePrescription(
+            @PathVariable("id") UUID id,
+            @RequestBody Prescription prescription) {
+
+        Prescription updatedPrescription =
+            prescriptionService.updatePrescription(id, prescription);
+
+        return new ResponseEntity<>(updatedPrescription, HttpStatus.OK);
+    }
+
+    // C4: Delete prescription
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePrescription(
+            @PathVariable("id") UUID id) {
+
+        prescriptionService.deletePrescription(id);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

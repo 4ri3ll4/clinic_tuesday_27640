@@ -121,4 +121,61 @@ public class PrescriptionService {
 
         return prescriptionRepo.findByAppointmentPatientId(patientId);
     }
+
+    // C4: Update an existing prescription
+    public Prescription updatePrescription(UUID id, Prescription updated) {
+
+        Prescription prescription = prescriptionRepo.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Prescription not found"
+            ));
+
+        // Validate medicine name
+        if (updated.getMedicineName() == null ||
+            updated.getMedicineName().isBlank()) {
+
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Medicine name is required"
+            );
+        }
+
+        // Validate dosage
+        if (updated.getDosage() == null ||
+            updated.getDosage().isBlank()) {
+
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Dosage is required"
+            );
+        }
+
+        // Validate duration
+        if (updated.getDurationDays() <= 0) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Duration must be greater than zero"
+            );
+        }
+
+        // Update only the allowed fields
+        prescription.setMedicineName(updated.getMedicineName());
+        prescription.setDosage(updated.getDosage());
+        prescription.setDurationDays(updated.getDurationDays());
+
+        return prescriptionRepo.save(prescription);
+    }
+
+    // C4: Delete a prescription
+    public void deletePrescription(UUID id) {
+
+        Prescription prescription = prescriptionRepo.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Prescription not found"
+            ));
+
+        prescriptionRepo.delete(prescription);
+    }
 }
