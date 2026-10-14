@@ -45,11 +45,35 @@ public class AppointmentService {
         if (appointment.getId() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Omit id when creating an appointment");
         }
+
+        // B1: Rejects appointments without a date
+        if (appointment.getAppointmentDate() == null) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Appointment date is required"
+            );
+        }
+
+        // B1: Rejects appointments in the past
+        if (appointment.getAppointmentDate().isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Cannot create an appointment in the past"
+            );
+        }
+
+        // B1: Where sll new appointments must start as SCHEDULED
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
+
         resolveRelationships(appointment);
+
+        //preventing double bookings
         if (appointmentRepo.existsByDoctorIdAndAppointmentDateAndStatusNot(
-                appointment.getDoctor().getId(), appointment.getAppointmentDate(), AppointmentStatus.CANCELLED)) {
+                appointment.getDoctor().getId(),
+                appointment.getAppointmentDate(),
+                AppointmentStatus.CANCELLED)) {
             return Optional.empty();
         }
+
         return Optional.of(appointmentRepo.save(appointment));
     }
 
