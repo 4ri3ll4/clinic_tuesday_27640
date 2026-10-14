@@ -1,7 +1,9 @@
 package kigali.clinic.rw.service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -99,5 +101,24 @@ public class PrescriptionService {
 
         // Save to PostgreSQL
         return prescriptionRepo.save(prescription);
+    }
+
+    // C3: Get prescriptions by appointment
+    public List<Prescription> getPrescriptionsByAppointment(UUID appointmentId) {
+
+        if (!appointmentRepo.existsById(appointmentId)) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Appointment not found"
+            );
+        }
+
+        return prescriptionRepo.findByAppointmentId(appointmentId);
+    }
+
+    // C3: Get prescriptions by patient
+    public List<Prescription> getPrescriptionsByPatient(UUID patientId) {
+
+        return prescriptionRepo.findByAppointmentPatientId(patientId);
     }
 }

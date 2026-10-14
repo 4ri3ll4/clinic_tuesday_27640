@@ -1,5 +1,8 @@
 package kigali.clinic.rw.controller;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +30,27 @@ public class PrescriptionController {
             savedPrescription,
             HttpStatus.CREATED
         );
+    }
+
+    // C3: Get prescriptions by appointment
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<List<Prescription>> getByAppointment(
+            @PathVariable("appointmentId") UUID appointmentId) {
+
+        List<Prescription> prescriptions =
+            prescriptionService.getPrescriptionsByAppointment(appointmentId);
+
+        return new ResponseEntity<>(prescriptions, HttpStatus.OK);
+    }
+
+    // C3: Get prescriptions by patient
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<Prescription>> getByPatient(
+            @PathVariable("patientId") UUID patientId) {
+
+        List<Prescription> prescriptions =
+            prescriptionService.getPrescriptionsByPatient(patientId);
+
+        return new ResponseEntity<>(prescriptions, HttpStatus.OK);
     }
 }
