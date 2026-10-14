@@ -1,0 +1,583 @@
+{
+  "info": {
+    "_postman_id": "0831ab58-580d-4203-879b-08fbce6da0f4",
+    "name": "Clinic Quiz 2 - 27640",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58363647",
+    "_collection_link": "https://go.postman.co/collection/58363647-0831ab58-580d-4203-879b-08fbce6da0f4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Quiz2",
+      "item": [
+        {
+          "name": "remaining appointment2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"appointmentDate\": \"2026-10-30\",\r\n  \"reason\": \"Medical review\",\r\n  \"status\": \"SCHEDULED\",\r\n  \"patient\": {\r\n    \"id\": \"3ef958a8-a618-4bd6-b8d0-e7daef5a1d60\"\r\n  },\r\n  \"doctor\": {\r\n    \"id\": \"e4fdc82a-ce82-42aa-bf48-e44ce91092a6\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/save",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "save"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Doctor specialization assignment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/doctors/37148a60-a6d6-4de4-b15a-84863cde8a71/specializations/2ce609fe-87e8-492c-9241-2c2fcf208e5c",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "doctors",
+                "37148a60-a6d6-4de4-b15a-84863cde8a71",
+                "specializations",
+                "2ce609fe-87e8-492c-9241-2c2fcf208e5c"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Removing specialization from Alice",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/doctors/37148a60-a6d6-4de4-b15a-84863cde8a71/specializations/2ce609fe-87e8-492c-9241-2c2fcf208e5c",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "doctors",
+                "37148a60-a6d6-4de4-b15a-84863cde8a71",
+                "specializations",
+                "2ce609fe-87e8-492c-9241-2c2fcf208e5c"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Checking free offices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/offices/free",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "offices",
+                "free"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "moving Alice to office 104",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/doctors/37148a60-a6d6-4de4-b15a-84863cde8a71/office?officeNumber=104",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "doctors",
+                "37148a60-a6d6-4de4-b15a-84863cde8a71",
+                "office"
+              ],
+              "query": [
+                {
+                  "key": "officeNumber",
+                  "value": "104"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Testing appointment creation validations for B1 (back date must fail)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"appointmentDate\": \"2026-10-01\",\r\n  \"reason\": \"Routine checkup\",\r\n  \"doctor\": {\r\n    \"id\": \"37148a60-a6d6-4de4-b15a-84863cde8a71\"\r\n  },\r\n  \"patient\": {\r\n    \"id\": \"3ef958a8-a618-4bd6-b8d0-e7daef5a1d60\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/save",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "save"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "automatically assign SCHEDULED and testing double bookings",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"appointmentDate\": \"2026-11-12\",\r\n  \"reason\": \"Follow-up consultation\",\r\n  \"status\": \"COMPLETED\",\r\n  \"doctor\": {\r\n    \"id\": \"37148a60-a6d6-4de4-b15a-84863cde8a71\"\r\n  },\r\n  \"patient\": {\r\n    \"id\": \"3ef958a8-a618-4bd6-b8d0-e7daef5a1d60\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/save",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "save"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updating a scheduled appointment to confirmed for B2",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/5eec865c-62df-485d-b99a-6799d570835d/status?status=CONFIRMED",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "5eec865c-62df-485d-b99a-6799d570835d",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "CONFIRMED"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updating a confirmed appointment to completed",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/5eec865c-62df-485d-b99a-6799d570835d/status?status=COMPLETED",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "5eec865c-62df-485d-b99a-6799d570835d",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "COMPLETED"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "trying to update a completed appointment to cancelled (must fail)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/5eec865c-62df-485d-b99a-6799d570835d/status?status=CANCELLED",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "5eec865c-62df-485d-b99a-6799d570835d",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "CANCELLED"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Updating a scheduled appointment to a new date (rescheduling)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/2e5be8d8-91d9-44a1-9519-3d49a6b4a660/reschedule?newDate=2026-11-20",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "2e5be8d8-91d9-44a1-9519-3d49a6b4a660",
+                "reschedule"
+              ],
+              "query": [
+                {
+                  "key": "newDate",
+                  "value": "2026-11-20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Creating a prescription",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"medicineName\": \"Paracetamol\",\r\n  \"dosage\": \"300mg twice a day\",\r\n  \"durationDays\": 5,\r\n  \"issuedDate\": \"2026-10-15\",\r\n  \"appointment\": {\r\n    \"id\": \"5eec865c-62df-485d-b99a-6799d570835d\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/prescriptions/save",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "prescriptions",
+                "save"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "see the prescription by appointment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/prescriptions/appointment/0b1ac876-e096-4c34-81d3-d3d6a7cda3b5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "prescriptions",
+                "appointment",
+                "0b1ac876-e096-4c34-81d3-d3d6a7cda3b5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "see the prescription by patient",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/prescriptions/patient/3ef958a8-a618-4bd6-b8d0-e7daef5a1d60",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "prescriptions",
+                "patient",
+                "3ef958a8-a618-4bd6-b8d0-e7daef5a1d60"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updating a prescription",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"medicineName\": \"Amoxicillin\",\r\n  \"dosage\": \"250mg three times daily\",\r\n  \"durationDays\": 5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/prescriptions/3a37fffb-4219-4e74-9846-197564f277dd",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "prescriptions",
+                "3a37fffb-4219-4e74-9846-197564f277dd"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleting a prescription",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/appointments/delete/3c7714e3-43a8-4b5f-b326-c60da67e8702",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "appointments",
+                "delete",
+                "3c7714e3-43a8-4b5f-b326-c60da67e8702"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Getting a doctor's agenda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/doctors/37148a60-a6d6-4de4-b15a-84863cde8a71/agenda?start=2026-10-14&end=2026-11-30",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "doctors",
+                "37148a60-a6d6-4de4-b15a-84863cde8a71",
+                "agenda"
+              ],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2026-10-14"
+                },
+                {
+                  "key": "end",
+                  "value": "2026-11-30"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "A patient's upcoming appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/patients/3ef958a8-a618-4bd6-b8d0-e7daef5a1d60/upcoming",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "patients",
+                "3ef958a8-a618-4bd6-b8d0-e7daef5a1d60",
+                "upcoming"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Searching patients by name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/dashboard/summary",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bonus1- most prescribed medicine",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/prescriptions/stats/top-medicines",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "prescriptions",
+                "stats",
+                "top-medicines"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bonus2- Getting doctor's workload",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
